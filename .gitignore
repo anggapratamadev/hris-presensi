@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+/.agents/
+/skills-lock.json
+/storage/attendance/*
+!/storage/attendance/.gitkeep
+/storage/attachments/*
+!/storage/attachments/.gitkeep
+*.log
+*.pem
+*.key
+*.p12

@@ -1,0 +1,10 @@
+<?php
+require dirname(__DIR__).'/config/bootstrap.php';require_once dirname(__DIR__).'/includes/layout.php';require_role('admin');
+$date=$_GET['tanggal']??date('Y-m-d');if(!preg_match('/^\d{4}-\d{2}-\d{2}$/',$date))$date=date('Y-m-d');
+$s=$pdo->prepare('SELECT p.*,u.nama,u.nip FROM presensi p JOIN users u ON u.id=p.user_id WHERE p.tanggal=? ORDER BY u.nama');$s->execute([$date]);$rows=$s->fetchAll();page_header('Rekap presensi');?>
+<div class="mb-4"><div class="eyebrow">Administrasi HR</div><h1 class="page-title">Rekap presensi</h1><p class="page-subtitle">Catatan jam, keterlambatan, jarak GPS, dan bukti selfie.</p></div>
+<form method="get" class="panel mb-3 d-flex align-items-end gap-2"><div><label class="form-label">Tanggal</label><input class="form-control" type="date" name="tanggal" value="<?=e($date)?>"></div><button class="btn btn-primary">Tampilkan</button></form>
+<section class="panel"><div class="table-responsive"><table class="table"><thead><tr><th>Karyawan</th><th>Masuk</th><th>Jarak / selfie</th><th>Pulang</th><th>Jarak / selfie</th><th>Status</th><th>Terlambat</th></tr></thead><tbody>
+<?php foreach($rows as $r):?><tr><td class="fw-semibold"><?=e($r['nama'])?><div class="small text-secondary"><?=e($r['nip'])?></div></td><td><?=e($r['jam_masuk']??'—')?></td><td><?php if($r['jarak_masuk_meter']!==null):?><?= (int)$r['jarak_masuk_meter']?> m<?php if($r['foto_masuk']):?> · <a target="_blank" href="/hris-presensi/photo.php?f=<?=rawurlencode($r['foto_masuk'])?>">Foto</a><?php endif;?><?php else:?>—<?php endif;?></td><td><?=e($r['jam_pulang']??'—')?></td><td><?php if($r['jarak_pulang_meter']!==null):?><?= (int)$r['jarak_pulang_meter']?> m<?php if($r['foto_pulang']):?> · <a target="_blank" href="/hris-presensi/photo.php?f=<?=rawurlencode($r['foto_pulang'])?>">Foto</a><?php endif;?><?php else:?>—<?php endif;?></td><td><?=e(ucfirst($r['status']))?></td><td><?=(int)$r['menit_terlambat']?> mnt</td></tr><?php endforeach;?>
+<?php if(!$rows):?><tr><td colspan="7" class="text-center text-secondary py-4">Belum ada catatan pada tanggal ini.</td></tr><?php endif;?></tbody></table></div></section>
+<?php page_footer();?>
